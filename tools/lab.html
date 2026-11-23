@@ -1,0 +1,22 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Model lab</title>
+<style>body{margin:0;background:#1a1626}canvas{image-rendering:pixelated;width:960px;height:540px}</style></head>
+<body><canvas id="c" width="320" height="180"></canvas>
+<script type="module">
+import { Stacker } from "../src/render/voxel.js";
+import { model } from "../src/render/models.js";
+const c = document.getElementById("c"), g = c.getContext("2d");
+const st = new Stacker(+(new URLSearchParams(location.search).get("p") || .85));
+const names = [["mage", "#d8486a"], ["golem"], ["slime"], ["salamander"], ["iceknight"], ["raven"], ["necro"], ["mech"], ["angel"], ["drake"], ["warlord"], ["m_slime"], ["m_skull"], ["m_bat"], ["p_fireball"], ["p_ice"], ["p_holy"], ["p_shadow"], ["p_wind"], ["p_rock"], ["spike"], ["crystal"], ["pillar", "stone"], ["p_meteor_big"]];
+let t = 0;
+function draw() {
+  t += .01; g.fillStyle = "#2a2438"; g.fillRect(0, 0, 320, 180);
+  names.forEach(([n, a], i) => {
+    const m = model(n, a), s = st.sprite(m, Math.floor(t * 8) % m.frames.length, t + i);
+    const x = 26 + (i % 8) * 38, y = 52 + Math.floor(i / 8) * 58;
+    g.drawImage(s.c, Math.round(x - s.ax), Math.round(y - s.ay));
+  });
+  requestAnimationFrame(draw);
+}
+draw();
+</script></body></html>
