@@ -12,15 +12,21 @@ const TURN = [{ urls: ["turn:eu-0.turn.peerjs.com:3478", "turn:us-0.turn.peerjs.
 /** 入力されたコードをそろえる。日本語キーボードの全角(ＡＢＣ１２)→半角、小文字→大文字、空白や記号は消す。 */
 export const normCode = (s) => String(s || "").normalize("NFKC").toUpperCase().replace(/[^A-Z0-9]/g, "");
 
-// Trystero は使うときだけ読み込む。?relay=ws://… を付けると、手元のテスト用中継につなぐ。
+// 相手を見つけるのに使う nostr リレー。部屋主と仲間は「同じリレーのどれか1つ」に両方つながれば出会える。
+// Trystero に任せると appId から小さなリレーを5つだけ選び、そこが落ちている・弾かれると誰とも会えなかった。
+// なので利用者の多い大きなリレー(+日本のリレー)をこちらで指定し、全部に同時につなぐ。
+const RELAYS = [
+  "wss://relay.damus.io", "wss://nos.lol", "wss://relay.primal.net", "wss://relay.snort.social",
+  "wss://relay.nostr.net", "wss://nostr.mom", "wss://offchain.pub", "wss://relay.nostr.band",
+  "wss://yabu.me", "wss://relay-jp.nostr.wirednet.jp", "wss://r.kojira.io", "wss://nostr-pub.wellorder.net",
+];
+// ?relay=ws://…(カンマ区切りで複数可)を付けると、そのリレーだけを使う(手元でのテスト用)。
 const relayParam = new URLSearchParams(location.search).get("relay");
-const loadJoin = () => relayParam
-  ? import("./trystero/ws-relay/index.js").then((m) => (cfg, room) => m.joinRoom({ ...cfg, relayConfig: { urls: [relayParam] } }, room))
-  : import("./trystero/trystero/index.js").then((m) => m.joinRoom);
+const relayUrls = relayParam ? relayParam.split(",") : RELAYS;
 
 const open = async (code) => {
-  const join = await loadJoin();
-  const room = join({ appId: APP_ID, identity: "none", turnConfig: TURN }, "room-" + code);
+  const { joinRoom } = await import("./trystero/trystero/index.js");
+  const room = joinRoom({ appId: APP_ID, identity: "none", turnConfig: TURN, relayConfig: { urls: relayUrls } }, "room-" + code);
   const act = room.makeAction("m");
   return { room, act };
 };
