@@ -191,6 +191,7 @@ class Game {
         this.afterAction();
       },
       error: (t) => this.ui.multiMenu(t),
+      status: (t) => { if (t) this.ui.banner(t, "red"); else this.ui.banner("通信が戻りました"); },
       message: (conn, m) => {
         const S = this.session; if (!S) return;
         if (m.t === "join") {

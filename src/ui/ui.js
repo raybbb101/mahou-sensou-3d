@@ -1,5 +1,6 @@
 // メニュー、HUD、タッチ操作。DOM で作る(文字をくっきり読めるように)。
 import { SPELLS, ULTS, ELEMENTS, REWARDS, BOSSES, THEMES, MAX_SLOTS, MAX_RANK, FLOORS, spellCd, spellDmg, CHARS, DWEAPONS, RARITY, STAGES, TILE } from "../sim/data.js";
+import { normCode, CODE_LEN } from "../net/p2p.js";
 
 const $ = (s, r = document) => r.querySelector(s);
 const h = (tag, attrs = {}, ...kids) => {
@@ -70,7 +71,8 @@ export class UI {
     this.hideHud();
     const G = this.G;
     const name = h("input", { maxlength: 10, placeholder: "なまえ", value: G.myName || "" });
-    const code = h("input", { maxlength: 5, placeholder: "ルームコード", class: "code", autocapitalize: "characters" });
+    // maxlength は付けない(日本語入力の全角や空白が混ざると5文字に届かず切れるため)。normCode でそろえる。
+    const code = h("input", { placeholder: "ルームコード", class: "code", autocapitalize: "characters", autocomplete: "off", autocorrect: "off", spellcheck: "false", enterkeyhint: "go" });
     const mode = h("select", {}, h("option", { value: "dungeon" }, "迷宮モード"), h("option", { value: "tower" }, "塔モード"));
     const save = () => { G.myName = name.value.trim(); try { localStorage.setItem("mw3d-name", G.myName); } catch {} };
     this.panel(
@@ -78,7 +80,12 @@ export class UI {
       h("p", { class: "note" }, "部屋を作るとコードが出ます。仲間は同じページを開いて、そのコードで入ります。"),
       h("label", {}, "なまえ", name),
       h("div", { class: "row" }, mode, this.btn("部屋を作る", () => { save(); G.hostRoom(name.value.trim(), mode.value); }, "primary")),
-      h("div", { class: "row" }, code, this.btn("部屋に入る", () => { save(); if (code.value.trim().length >= 4) G.joinRoom(code.value.trim(), name.value.trim()); })),
+      h("div", { class: "row" }, code, this.btn("部屋に入る", () => {
+        save();
+        const c = normCode(code.value);
+        if (c.length !== CODE_LEN) return this.multiMenu(`コードは英数字${CODE_LEN}文字です(いま「${code.value.trim() || "なし"}」)。`);
+        G.joinRoom(c, name.value.trim());
+      })),
       msg ? h("p", { class: "msg" }, msg) : null,
       this.btn("もどる", () => { G.toTitle(); }),
     );
