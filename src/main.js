@@ -1,5 +1,5 @@
 // 魔法戦争 3D エントリーポイント。
-// ソロ: 自分のブラウザで Session を回す。マルチ: 部屋を作った人のブラウザで回し、仲間には状態を送る(PeerJS)。
+// ソロ: 自分のブラウザで Session を回す。マルチ: 部屋を作った人のブラウザで回し、仲間には状態を送る(WebRTC)。
 import { Session, MAX_PLAYERS } from "./sim/session.js";
 import { World, TICK } from "./sim/world.js";
 import { BOSSES, SPELL_IDS, ULT_IDS, PLAYER_COLORS, FLOORS, THEMES } from "./sim/data.js";
@@ -177,9 +177,8 @@ class Game {
   }
   leaveLink() { if (this.link) { try { this.link.close(); } catch {} this.link = null; } this.code = null; }
 
-  // ───── マルチ(PeerJS) ─────
+  // ───── マルチ(WebRTC / Trystero) ─────
   hostRoom(name, mode = "dungeon") {
-    if (!window.Peer) return this.ui.multiMenu("通信ライブラリを読み込めませんでした。インターネット接続を確認してください。");
     this.leaveLink();
     this.ui.multiMenu("部屋を作っています…");
     const ids = new Map(); let next = 2;
@@ -191,7 +190,7 @@ class Game {
         this.afterAction();
       },
       error: (t) => this.ui.multiMenu(t),
-      status: (t) => { if (t) this.ui.banner(t, "red"); else this.ui.banner("通信が戻りました"); },
+      status: (t) => { if (t) this.ui.banner(t, "red"); },
       message: (conn, m) => {
         const S = this.session; if (!S) return;
         if (m.t === "join") {
@@ -215,7 +214,6 @@ class Game {
     this.link = h;
   }
   joinRoom(code, name) {
-    if (!window.Peer) return this.ui.multiMenu("通信ライブラリを読み込めませんでした。インターネット接続を確認してください。");
     this.leaveLink();
     this.ui.multiMenu("部屋を探しています…");
     const c = new P2PClient(code, {
