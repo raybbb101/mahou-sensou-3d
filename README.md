@@ -48,7 +48,7 @@
 ## 協力プレイ
 
 「仲間と挑む」でモードを選んで部屋を作ると5文字のコードが出ます。仲間は同じページを開いてコードで入ります。
-WebRTC でブラウザ同士を直接つなぐのでサーバーは要りません。相手を見つけるのには [Trystero](https://github.com/dmotz/trystero)(公開の nostr リレーを使う)を使い、`src/net/trystero/` に同梱しています。戦闘は部屋を作った人のブラウザで計算します。
+WebRTC でブラウザ同士を直接つなぐのでサーバーは要りません。相手を見つけるのには [Trystero](https://github.com/dmotz/trystero)(公開の nostr リレーを使う。使うリレーは `src/net/p2p.js` の `RELAYS` で、大きなリレー12か所に同時につなぐ)を使い、`src/net/trystero/` に同梱しています。戦闘は部屋を作った人のブラウザで計算します。
 
 ## しくみ
 

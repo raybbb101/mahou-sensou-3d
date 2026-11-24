@@ -1,5 +1,5 @@
 // オフラインでも遊べるように、ゲームのファイルを保存しておく(オンライン協力はネットが必要)。
-const CACHE = "mahou-sensou-3d-v3";
+const CACHE = "mahou-sensou-3d-v4";
 const FILES = ["./", "index.html", "style.css", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-180.png",
   "src/main.js", "src/net/p2p.js", "src/ui/ui.js", "src/sim/data.js", "src/sim/world.js", "src/sim/session.js", "src/sim/dungeon.js",
   "src/render/view.js", "src/render/voxel.js", "src/render/models.js", "src/render/fx.js", "src/render/audio.js"];
